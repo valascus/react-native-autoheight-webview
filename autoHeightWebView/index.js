@@ -17,13 +17,31 @@ import {
 
 const AutoHeightWebView = React.memo(
   forwardRef((props, ref) => {
+    const defaultProps = {
+      showsVerticalScrollIndicator: false,
+      showsHorizontalScrollIndicator: false,
+      originWhitelist: ['*'],
+    };
+
+    Platform.OS === 'android' &&
+      Object.assign(defaultProps, {
+        scalesPageToFit: false,
+      });
+
+    Platform.OS === 'ios' &&
+      Object.assign(defaultProps, {
+        viewportContent: 'width=device-width',
+      });
+
+    const fixProps = Object.assign(defaultProps, props);
+
     const {
       style,
       onMessage,
       onSizeUpdated,
       scrollEnabledWithZoomedin,
       scrollEnabled,
-    } = props;
+    } = fixProps;
 
     const [size, setSize] = useState({
       height: style && style.height ? style.height : 0,
@@ -62,7 +80,7 @@ const AutoHeightWebView = React.memo(
         ? scrollable
         : scrollEnabled;
 
-    const {currentSource, script} = reduceData(props);
+    const {currentSource, script} = reduceData(fixProps);
 
     const {width, height} = size;
     useEffect(() => {
@@ -74,7 +92,7 @@ const AutoHeightWebView = React.memo(
     }, [width, height, onSizeUpdated]);
 
     return React.createElement(WebView, {
-      ...props,
+      ...fixProps,
       ref,
       onMessage: handleMessage,
       style: [
