@@ -1,12 +1,8 @@
 import React, {useState, useEffect, forwardRef} from 'react';
-
 import {StyleSheet, Platform} from 'react-native';
-
 import {ViewPropTypes} from 'deprecated-react-native-prop-types';
 import PropTypes from 'prop-types';
-
 import {WebView} from 'react-native-webview';
-
 import {
   topic,
   reduceData,
@@ -16,24 +12,29 @@ import {
 } from './utils';
 
 const AutoHeightWebView = React.memo(
-  forwardRef((props, ref) => {
-    const defaultProps = {
-      showsVerticalScrollIndicator: false,
-      showsHorizontalScrollIndicator: false,
-      originWhitelist: ['*'],
+  forwardRef(({
+    showsVerticalScrollIndicator = false,
+    showsHorizontalScrollIndicator = false,
+    originWhitelist = ['*'],
+    scalesPageToFit,
+    viewportContent,
+    ...props
+  }, ref) => {
+    const platformDefaults = {};
+    if (Platform.OS === 'android') {
+      platformDefaults.scalesPageToFit = false;
+    }
+    if (Platform.OS === 'ios') {
+      platformDefaults.viewportContent = 'width=device-width';
+    }
+
+    const fixProps = {
+      showsVerticalScrollIndicator,
+      showsHorizontalScrollIndicator,
+      originWhitelist,
+      ...platformDefaults,
+      ...props,
     };
-
-    Platform.OS === 'android' &&
-      Object.assign(defaultProps, {
-        scalesPageToFit: false,
-      });
-
-    Platform.OS === 'ios' &&
-      Object.assign(defaultProps, {
-        viewportContent: 'width=device-width',
-      });
-
-    const fixProps = Object.assign(defaultProps, props);
 
     const {
       style,
@@ -81,7 +82,6 @@ const AutoHeightWebView = React.memo(
         : scrollEnabled;
 
     const {currentSource, script} = reduceData(fixProps);
-
     const {width, height} = size;
     useEffect(() => {
       onSizeUpdated &&
@@ -131,24 +131,6 @@ AutoHeightWebView.propTypes = {
   scalesPageToFit: PropTypes.bool,
   source: PropTypes.object,
 };
-
-let defaultProps = {
-  showsVerticalScrollIndicator: false,
-  showsHorizontalScrollIndicator: false,
-  originWhitelist: ['*'],
-};
-
-Platform.OS === 'android' &&
-  Object.assign(defaultProps, {
-    scalesPageToFit: false,
-  });
-
-Platform.OS === 'ios' &&
-  Object.assign(defaultProps, {
-    viewportContent: 'width=device-width',
-  });
-
-AutoHeightWebView.defaultProps = defaultProps;
 
 const styles = StyleSheet.create({
   webView: {
