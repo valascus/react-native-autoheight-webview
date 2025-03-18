@@ -1,5 +1,5 @@
-import React, {useState, useEffect, forwardRef} from 'react';
-
+import React, {useState, useEffect, forwardRef, useCallback} from 'react';
+import {debounce} from 'lodash';
 import {StyleSheet, Platform} from 'react-native';
 
 import {ViewPropTypes} from 'deprecated-react-native-prop-types';
@@ -30,9 +30,8 @@ const AutoHeightWebView = React.memo(
       width: getWidth(style),
     });
 
-    const [scrollable, setScrollable] = useState(false);
-    const handleMessage = (event) => {
-      if (event.nativeEvent) {
+    const handleDelayWebViewHeight = useCallback(
+      debounce((event) => {
         try {
           const data = JSON.parse(event.nativeEvent.data);
           if (data.topic !== topic) {
@@ -52,6 +51,14 @@ const AutoHeightWebView = React.memo(
         } catch (error) {
           onMessage && onMessage(event);
         }
+      }, 1000),
+      [],
+    );
+
+    const [scrollable, setScrollable] = useState(false);
+    const handleMessage = (event) => {
+      if (event.nativeEvent) {
+        handleDelayWebViewHeight(event);
       } else {
         onMessage && onMessage(event);
       }

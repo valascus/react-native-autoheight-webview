@@ -215,16 +215,8 @@ export const getWidth = (style) => {
   return style && style.width ? style.width : screenWidth;
 };
 
-export const isSizeChanged = ({
-  height,
-  previousHeight,
-  width,
-  previousWidth,
-}) => {
-  if (!height || !width) {
-    return;
-  }
-  return height !== previousHeight || width !== previousWidth;
+export const isSizeChanged = ({ height, previousHeight, width, previousWidth }) => {
+  return Math.abs(height - previousHeight) > 1 || Math.abs(width - previousWidth) > 1;
 };
 
 export const reduceData = (props) => {
