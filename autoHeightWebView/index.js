@@ -31,11 +31,10 @@ const AutoHeightWebView = React.memo(
     });
 
     const handleDelayWebViewHeight = useCallback(
-      debounce((event) => {
+      debounce((eventData) => {
         try {
-          const data = JSON.parse(event.nativeEvent.data);
+          const data = JSON.parse(eventData);
           if (data.topic !== topic) {
-            onMessage && onMessage(event);
             return;
           }
           const {height, width, zoomedin} = data;
@@ -49,7 +48,7 @@ const AutoHeightWebView = React.memo(
               width,
             });
         } catch (error) {
-          onMessage && onMessage(event);
+          
         }
       }, 1000),
       [],
@@ -57,8 +56,8 @@ const AutoHeightWebView = React.memo(
 
     const [scrollable, setScrollable] = useState(false);
     const handleMessage = (event) => {
-      if (event.nativeEvent) {
-        handleDelayWebViewHeight(event);
+      if (event.nativeEvent && event.nativeEvent.data) {
+        handleDelayWebViewHeight(event.nativeEvent.data);
       } else {
         onMessage && onMessage(event);
       }
